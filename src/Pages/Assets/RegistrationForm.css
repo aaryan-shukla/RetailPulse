@@ -1,0 +1,92 @@
+/* Form.css */
+body {
+  margin: 0;
+  padding: 0;
+  background-image: url("D:\React\web-framework\src\Pages\Assets\BackgroundImage.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: repeat;
+  font-family: "Arial", sans-serif;
+  color: #333;
+}
+.form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header-logo-part {
+  text-align: center;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+.registration-form {
+  text-align: center;
+  width: 300px;
+  padding: 20px;
+  margin: auto;
+  border: 1px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: whtie;
+}
+
+.registration-form div {
+  margin-bottom: 15px;
+}
+
+.registration-form span {
+  display: block;
+  text-align: left;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.registration-form input {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  border: none;
+  background-color: #f0efef;
+  border-radius: 2px;
+  font-size: 14px;
+}
+
+.registration-form input[type="submit"] {
+  background-color: #0c140c;
+  color: white;
+  cursor: pointer;
+  border-radius: 15px;
+}
+
+.registration-form input[type="submit"]:hover {
+  background-color: #45a049;
+}
+
+.brandStyleForm {
+  padding-top: 10px;
+  font-size: 4em;
+  font-weight: bold;
+  font-style: italic;
+  color: #00bfff;
+}
+.brandStyleForm1 {
+  font-size: 4em;
+  font-weight: bold;
+  font-style: italic;
+  color: rgb(43, 41, 41);
+}
+.registerSpan {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 35px;
+  font-weight: bold;
+  text-align: center;
+  font-family: "Trebuchet MS", sans-serif;
+}
+.inputFieldName {
+  font-size: 16px;
+  color: rgb(75, 74, 74);
+  font-family: "Trebuchet MS", sans-serif;
+}

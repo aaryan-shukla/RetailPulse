@@ -1,0 +1,40 @@
+/* Navbar.css */
+.brandStyle {
+  margin-right: 5px;
+  font-size: 1.5em;
+  font-weight: bold;
+  font-style: italic;
+  color: #00bfff;
+}
+.brandStyle1 {
+  margin-right: 20px;
+  font-size: 1.5em;
+  font-weight: bold;
+  font-style: italic;
+  color: white;
+}
+.ulStyle {
+  list-style-type: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+.navStyle {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 10px;
+  background-color: #333;
+  border-radius: 2px;
+}
+.tabStyle {
+  text-decoration: none;
+  color: white;
+  font-family: Merriweather;
+  transition: color 0.3s ease;
+  padding: 1px 5px;
+  border-radius: 5px;
+}
+.tabStyle:hover {
+  color: #00bfff;
+}
