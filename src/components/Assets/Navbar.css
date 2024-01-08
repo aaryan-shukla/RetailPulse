@@ -38,3 +38,6 @@
 .tabStyle:hover {
   color: #00bfff;
 }
+.activeTab {
+  color: #00bfff;
+}

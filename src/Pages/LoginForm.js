@@ -1,6 +1,9 @@
+// LoginForm.js
 import React, { Component } from "react";
 import { Row } from "antd";
+import { Navigate } from "react-router-dom";
 import "./Assets/RegistrationForm.css";
+
 class LoginForm extends Component {
   constructor(props) {
     super(props);
@@ -8,12 +11,13 @@ class LoginForm extends Component {
       form: {},
       users: [],
       isLoading: false,
+      redirectToShoppingPage: false,
     };
   }
 
   handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch("http://localhost:8080/demo", {
+    const response = await fetch("http://localhost:8080/userLogin", {
       method: "POST",
       body: JSON.stringify(this.state.form),
       headers: {
@@ -23,10 +27,12 @@ class LoginForm extends Component {
     await new Promise((resolve) => setTimeout(resolve, 2000));
     const data = await response.json();
     this.setState({ isLoading: false });
+
     if (response.ok) {
-      alert("User registration successful!"); // Show alert on success
+      alert("User Login successful!");
+      this.setState({ redirectToShoppingPage: true });
     } else {
-      alert(data.error || "User registration failed!"); // Show alert on failure
+      alert(data.error || "User Login failed!");
     }
     console.log(data);
   };
@@ -43,6 +49,7 @@ class LoginForm extends Component {
   renderLoginFormSection = () => {
     return (
       <div>
+        {this.state.redirectToShoppingPage && <Navigate to="/retail" />}
         <span className="registerSpan">Login</span>
         <div className="registration-form">
           <form onSubmit={this.handleSubmit}>
@@ -59,7 +66,7 @@ class LoginForm extends Component {
             <div>
               <span className="inputFieldName">Password</span>
               <input
-                type="text"
+                type="password"
                 name="password"
                 onChange={this.handleForm}
                 placeholder="*****"
@@ -74,7 +81,6 @@ class LoginForm extends Component {
       </div>
     );
   };
-
   renderHeaderLogoPart = () => {
     return (
       <section>

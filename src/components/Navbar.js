@@ -15,6 +15,7 @@ export default class Navbar extends Component {
 
   render() {
     const { tabs } = this.state;
+    const currentPath = window.location.pathname;
     return (
       <header>
         <nav className="navStyle">
@@ -25,7 +26,11 @@ export default class Navbar extends Component {
           <ul className="ulStyle">
             {tabs.map((tab) => (
               <li key={tab} style={{ marginRight: "15px" }}>
-                <a href={`./${tab}`} className="tabStyle">
+                <a
+                  href={`./${tab.toLowerCase()}`}
+                  className={`tabStyle ${
+                    currentPath.includes(tab.toLowerCase()) ? "activeTab" : ""
+                  }`}>
                   {tab}
                 </a>
               </li>
