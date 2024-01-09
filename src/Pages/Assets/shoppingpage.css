@@ -97,45 +97,20 @@
   margin-left: 20px;
   margin-right: 20px;
 }
-.productDisplayStyle {
-  border-left: 2px solid #0b0a0a;
-  border-right: 2px solid #00bfff;
-  border-top: 1px solid #0b0a0a;
-  border-bottom: 1px solid #00bfff;
-  border-radius: 10px;
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-.productInfoStyle {
-  display: flex;
-  align-items: center;
-}
-.quantityDisplayStyle {
-  margin: 0 8px;
-}
-.inStockStyle {
-  background-color: rgb(196, 191, 191);
-  margin-right: 10rem;
-  width: 65px;
-  text-align: center;
-  font-weight: bolder;
-  color: black;
-  border-radius: 10px;
-  border-bottom: 2px solid rgb(153, 150, 150);
-}
-.keyStyleForProductDivNames {
-  margin-right: 10px;
-  font-size: 15px;
-  font-family: sans-serif;
-}
+
 .discountOptions {
   width: 10rem;
-  margin-left: 10px;
+  margin-left: 1rem;
   border: 1px solid black;
-  border-radius: 10px;
+  border-radius: 5px;
   box-shadow: 4px 2px 8px rgba(125, 187, 238, 0.916);
+}
+.quantityChangeButton {
+  border: 1px solid transparent;
+  background-color: #37ccfd;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 50px;
 }
 @media screen and (max-width: 600px) {
   .shoppingPageFirstSectionContainer {

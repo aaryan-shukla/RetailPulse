@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import Navbar from "../components/Navbar";
-import { Input, Row, Select } from "antd";
+import { Input, Row, Select, Space, Table } from "antd";
 import {
   UserOutlined,
   ShoppingCartOutlined,
@@ -15,8 +15,8 @@ export default class ShoppingPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isAppliedFilterClicked: false,
       showDropdowns: false,
+      productData: [],
     };
   }
   componentDidMount() {
@@ -36,7 +36,8 @@ export default class ShoppingPage extends Component {
         }
       );
       const doc = await response.json();
-      console.log(doc);
+      this.setState({ productData: doc });
+      console.log(this.state.productData);
       // Do something with the fetched data, like updating component state
     } catch (error) {
       console.error("Error fetching product data:", error);
@@ -144,59 +145,70 @@ export default class ShoppingPage extends Component {
     );
   }
   renderProductDisplaySection() {
-    const productData = {
-      _id: {
-        $oid: "659ae1c111603f6c22672995",
-      },
-      id: "6593fa950574b1d36280bac4",
-      user_name: "Aaryan",
-      product_name: "Beans - Turtle, Black, Dry",
-      category: "Snacks",
-      product_price: 165,
-      quantity: 82,
-    };
     const discountOptions = Array.from({ length: 21 }, (_, index) => index * 5);
     const handleQuantityChange = (increment) => {
-      // Handle quantity change based on increment (+1 or -1)
       console.log("Quantity changed:", increment);
     };
 
+    const columns = [
+      {
+        title: "Product Name",
+        dataIndex: "product_name",
+        key: "product_name",
+      },
+      {
+        title: "In Stock",
+        dataIndex: "quantity",
+        key: "quantity",
+      },
+      {
+        title: "Discount",
+        dataIndex: "discount",
+        key: "discount",
+        render: () => (
+          <Select className="discountOptions" defaultValue={0}>
+            {discountOptions.map((discount) => (
+              <Option key={discount} value={discount}>
+                {discount}% Off
+              </Option>
+            ))}
+          </Select>
+        ),
+      },
+      {
+        title: "Price",
+        dataIndex: "product_price",
+        key: "product_price",
+        render: (text) => <span>{text} ₹</span>,
+      },
+      {
+        title: "Product Count in Cart",
+        key: "action",
+        render: (text, record) => (
+          <Space size="middle">
+            <button
+              className="quantityChangeButton"
+              onClick={() => handleQuantityChange(-1)}>
+              -
+            </button>
+            <span className="quantityDisplayStyle">{record.quantity}</span>
+            <button
+              className="quantityChangeButton"
+              onClick={() => handleQuantityChange(1)}>
+              +
+            </button>
+          </Space>
+        ),
+      },
+    ];
+
     return (
       <div className="containerStyle">
-        <div className="productDisplayStyle">
-          <div className="productInfoStyle">
-            <span
-              style={{
-                marginRight: "5rem",
-                fontSize: "15px",
-                fontFamily: "sans-serif",
-              }}>
-              <b>{productData.product_name}</b>
-            </span>
-            <span className="keyStyleForProductDivNames">
-              <b>In Stock</b>
-            </span>
-            <div className="inStockStyle">{productData.quantity}</div>
-            <label className="keyStyleForProductDivNames">
-              <b>Discount:</b>
-            </label>
-            <select className="discountOptions">
-              {discountOptions.map((discount) => (
-                <option key={discount} value={discount}>
-                  {discount}% Off
-                </option>
-              ))}
-            </select>
-          </div>
-          <span style={{ marginRight: "10px" }}>
-            Price: {productData.product_price} <b>₹</b>
-          </span>
-          <div>
-            <button onClick={() => handleQuantityChange(-1)}>-</button>
-            <span className="quantityDisplayStyle">{productData.quantity}</span>
-            <button onClick={() => handleQuantityChange(1)}>+</button>
-          </div>
-        </div>
+        <Table
+          dataSource={this.state.productData}
+          columns={columns}
+          rowKey="_id.$oid"
+        />
       </div>
     );
   }
