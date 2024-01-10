@@ -6,21 +6,37 @@ import {
   ShoppingCartOutlined,
   FilterOutlined,
   SlidersOutlined,
-  SortAscendingOutlined,
-  SortDescendingOutlined,
 } from "@ant-design/icons";
 import "./Assets/shoppingpage.css";
+import { useNavigation } from "../Context/navigationProvider";
+
 const { Option } = Select;
-export default class ShoppingPage extends Component {
+const { Search } = Input;
+
+const ShoppingPageWithNavigation = () => {
+  const { navigationData } = useNavigation();
+
+  return <ShoppingPage navigationData={navigationData} />;
+};
+export default ShoppingPageWithNavigation;
+class ShoppingPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
       showDropdowns: false,
+      sortIndicator: null,
+      sortDirection: "asc",
       productData: [],
+      quantityInCart: {},
+      categoryFilter: [],
+      filteredProductData: [],
+      user: "",
     };
   }
   componentDidMount() {
     document.body.style.background = "none";
+    // const { navigationData } = this.props;
+    console.log("Data from navigation:", this.props);
     this.fetchData("6593fa950574b1d36280bac4");
   }
 
@@ -36,13 +52,22 @@ export default class ShoppingPage extends Component {
         }
       );
       const doc = await response.json();
-      this.setState({ productData: doc });
-      console.log(this.state.productData);
-      // Do something with the fetched data, like updating component state
+      const initialQuantityInCart = {};
+      doc.forEach((product) => {
+        initialQuantityInCart[product._id] = 0;
+      });
+      const uniqueCategories = [...new Set(doc.map((obj) => obj.category))];
+
+      this.setState({
+        productData: doc,
+        quantityInCart: initialQuantityInCart,
+        categoryFilter: uniqueCategories,
+      });
     } catch (error) {
       console.error("Error fetching product data:", error);
     }
   }
+
   renderInputSection() {
     return (
       <div className="shoppingPageFirstSectionContainer">
@@ -87,38 +112,96 @@ export default class ShoppingPage extends Component {
       </div>
     );
   }
-  sortOnAlphabeticalAscending() {
-    console.log("sort on ascending a to z");
-  }
-  sortOnPrice() {
-    console.log("sort on PRICE");
-  }
-  sortOnAlphabeticalDescending() {
-    console.log("sort on descending a to z");
-  }
+
+  sortOnPrice = () => {
+    const { sortDirection, filteredProductData, productData } = this.state;
+
+    const newDirection = sortDirection === "asc" ? "desc" : "asc";
+
+    this.setState({
+      sortIndicator: "price",
+      sortDirection: newDirection,
+    });
+    const dataToSort = filteredProductData.length
+      ? filteredProductData.slice()
+      : productData.slice();
+
+    const sortedData = dataToSort.sort((a, b) => {
+      const priceA = a.product_price;
+      const priceB = b.product_price;
+
+      if (newDirection === "asc") {
+        return priceA - priceB;
+      } else {
+        return priceB - priceA;
+      }
+    });
+
+    this.setState({
+      filteredProductData: sortedData,
+    });
+  };
+
+  handleCategoryChange = (value) => {
+    // Filter the productData based on the selected category
+    const filteredData = this.state.productData.filter(
+      (product) => product.category === value
+    );
+
+    this.setState({
+      filteredProductData: filteredData,
+    });
+  };
+  onSearch = (value) => {
+    const { productData } = this.state;
+
+    if (value.trim() === "") {
+      // If the search value is empty, do not update filteredProductData
+      return;
+    }
+
+    // If there is a search value, filter the product data based on the search query
+    const searchFilteredData = productData.filter((product) =>
+      product.product_name.toLowerCase().includes(value.toLowerCase())
+    );
+
+    console.log("search data", searchFilteredData);
+
+    // Update the state with the filtered data
+    this.setState({
+      filteredProductData:
+        searchFilteredData.length > 0 ? searchFilteredData : [],
+    });
+  };
+
   renderDropdownOptions() {
-    console.log("Clicked filters");
+    const { categoryFilter } = this.state;
     return (
       <div>
-        {/* Your dropdown content here */}
-        <Select defaultValue="Option1" className="dropdownOptions">
-          <Option value="Option1">Option 1</Option>
-          <Option value="Option2">Option 2</Option>
-          <Option value="Option3">Option 3</Option>
+        <Select
+          defaultValue={categoryFilter[0] || "option1"}
+          className="dropdownOptions"
+          onChange={this.handleCategoryChange}>
+          {categoryFilter.map((categories) => (
+            <option key={categories} value={categories}>
+              {categories}
+            </option>
+          ))}
         </Select>
-        <button className="sortButton" onClick={this.sortOnPrice}>
-          <SlidersOutlined /> Price High to Low
-        </button>
         <button
-          className="sortButton"
-          onClick={this.sortOnAlphabeticalAscending}>
-          <SortAscendingOutlined /> A to Z
+          className={`sortButton ${
+            this.state.sortIndicator === "price" ? "active" : ""
+          }`}
+          onClick={this.sortOnPrice}>
+          <SlidersOutlined /> Price{" "}
+          {this.state.sortDirection === "asc" ? "High to Low" : "Low to High"}
         </button>
-        <button
+        <Search
+          placeholder="input search text"
+          onSearch={this.onSearch}
+          style={{ width: "30rem" }}
           className="sortButton"
-          onClick={this.sortOnAlphabeticalDescending}>
-          <SortDescendingOutlined />Z to A
-        </button>
+        />
       </div>
     );
   }
@@ -128,7 +211,6 @@ export default class ShoppingPage extends Component {
     }));
   };
   renderFilterSection() {
-    console.log(this.state.showDropdowns);
     return (
       <div className="filterIconDiv">
         <br />
@@ -146,10 +228,22 @@ export default class ShoppingPage extends Component {
   }
   renderProductDisplaySection() {
     const discountOptions = Array.from({ length: 21 }, (_, index) => index * 5);
-    const handleQuantityChange = (increment) => {
-      console.log("Quantity changed:", increment);
-    };
 
+    const handleQuantityChange = (productId, increment) => {
+      const currentQuantity = this.state.quantityInCart[productId] || 0;
+
+      const newQuantity = currentQuantity + increment;
+      const finalQuantity = Math.max(newQuantity, 0);
+      this.setState((prevState) => ({
+        quantityInCart: {
+          ...prevState.quantityInCart,
+          [productId]: finalQuantity,
+        },
+      }));
+    };
+    const dataToDisplay = this.state.filteredProductData.length
+      ? this.state.filteredProductData
+      : this.state.productData;
     const columns = [
       {
         title: "Product Name",
@@ -181,39 +275,42 @@ export default class ShoppingPage extends Component {
         key: "product_price",
         render: (text) => <span>{text} ₹</span>,
       },
-      {
+    ];
+    if (this.state.productData.length > 0) {
+      columns.push({
         title: "Product Count in Cart",
         key: "action",
-        render: (text, record) => (
-          <Space size="middle">
-            <button
-              className="quantityChangeButton"
-              onClick={() => handleQuantityChange(-1)}>
-              -
-            </button>
-            <span className="quantityDisplayStyle">{record.quantity}</span>
-            <button
-              className="quantityChangeButton"
-              onClick={() => handleQuantityChange(1)}>
-              +
-            </button>
-          </Space>
-        ),
-      },
-    ];
+        render: (record) => {
+          return (
+            <Space size="middle">
+              <button
+                className="quantityChangeButton"
+                onClick={() => handleQuantityChange(record._id, -1)}>
+                -
+              </button>
+              <span className="quantityDisplayStyle">
+                {this.state.quantityInCart[record._id] || 0}
+              </span>
+              <button
+                className="quantityChangeButton"
+                onClick={() => handleQuantityChange(record._id, 1)}>
+                +
+              </button>
+            </Space>
+          );
+        },
+      });
+    }
 
     return (
       <div className="containerStyle">
-        <Table
-          dataSource={this.state.productData}
-          columns={columns}
-          rowKey="_id.$oid"
-        />
+        <Table dataSource={dataToDisplay} columns={columns} rowKey="_id" />
       </div>
     );
   }
 
   render() {
+    // const { from } = location.state
     return (
       <div>
         <Navbar />
@@ -231,3 +328,5 @@ export default class ShoppingPage extends Component {
     );
   }
 }
+
+// export default ShoppingPage;

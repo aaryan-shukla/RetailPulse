@@ -1,20 +1,23 @@
+// app.js
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Form from "./Pages/SignUpForm";
 import LoginForm from "./Pages/LoginForm";
-import ShoopingPage from "./Pages/ShoppingPage";
-
+import ShoppingPageWithNavigation from "./Pages/ShoppingPage";
+import { NavigationProvider } from "./Context/navigationProvider";
 export default function App() {
   return (
     <Router>
-      <div>
-        <Routes>
-          <Route path="/" element={<Form />} />
-          <Route path="/signup" element={<Form />} />
-          <Route path="/login" element={<LoginForm />} />
-          <Route path="/retail" element={<ShoopingPage />} />
-        </Routes>
-      </div>
+      <NavigationProvider>
+        <div>
+          <Routes>
+            <Route path="/" element={<Form />} />
+            <Route path="/signup" element={<Form />} />
+            <Route path="/login" element={<LoginForm />} />
+            <Route path="/retail" element={<ShoppingPageWithNavigation />} />
+          </Routes>
+        </div>
+      </NavigationProvider>
     </Router>
   );
 }

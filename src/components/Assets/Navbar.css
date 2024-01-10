@@ -41,3 +41,10 @@
 .activeTab {
   color: #00bfff;
 }
+.profileName {
+  margin-left: auto;
+  font-size: 1em;
+  font-weight: bold;
+  font-style: italic;
+  color: #00bfff;
+}

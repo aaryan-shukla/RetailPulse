@@ -1,9 +1,7 @@
-// LoginForm.js
 import React, { Component } from "react";
 import { Row } from "antd";
-import { Navigate } from "react-router-dom";
 import "./Assets/RegistrationForm.css";
-
+import LoginSuccessRedirect from "./LoginSuccessRedirect";
 class LoginForm extends Component {
   constructor(props) {
     super(props);
@@ -12,6 +10,7 @@ class LoginForm extends Component {
       users: [],
       isLoading: false,
       redirectToShoppingPage: false,
+      user: "",
     };
   }
 
@@ -30,7 +29,11 @@ class LoginForm extends Component {
 
     if (response.ok) {
       alert("User Login successful!");
-      this.setState({ redirectToShoppingPage: true });
+      const user = data.user.username;
+      // const { setNavigation } = useNavigation(); // Use the useNavigation hook
+      // setNavigation({ user });
+      this.setState({ redirectToShoppingPage: true, user: user });
+      // Use the Navigate component to navigate
     } else {
       alert(data.error || "User Login failed!");
     }
@@ -47,9 +50,12 @@ class LoginForm extends Component {
   };
 
   renderLoginFormSection = () => {
+    console.log("0000000000000", this.state.user);
     return (
       <div>
-        {this.state.redirectToShoppingPage && <Navigate to="/retail" />}
+        {this.state.redirectToShoppingPage && (
+          <LoginSuccessRedirect user={this.state.user} />
+        )}
         <span className="registerSpan">Login</span>
         <div className="registration-form">
           <form onSubmit={this.handleSubmit}>
@@ -81,6 +87,7 @@ class LoginForm extends Component {
       </div>
     );
   };
+
   renderHeaderLogoPart = () => {
     return (
       <section>
@@ -94,6 +101,7 @@ class LoginForm extends Component {
       </section>
     );
   };
+
   render() {
     return (
       <div className="form-container">

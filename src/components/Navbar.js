@@ -16,6 +16,7 @@ export default class Navbar extends Component {
   render() {
     const { tabs } = this.state;
     const currentPath = window.location.pathname;
+    // const { userName } = this.props;
     return (
       <header>
         <nav className="navStyle">
@@ -36,6 +37,7 @@ export default class Navbar extends Component {
               </li>
             ))}
           </ul>
+          <div className="profileName">""</div>
         </nav>
       </header>
     );
