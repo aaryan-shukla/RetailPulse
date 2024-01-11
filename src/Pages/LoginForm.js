@@ -29,11 +29,8 @@ class LoginForm extends Component {
 
     if (response.ok) {
       alert("User Login successful!");
-      const user = data.user.username;
-      // const { setNavigation } = useNavigation(); // Use the useNavigation hook
-      // setNavigation({ user });
+      const user = data.user;
       this.setState({ redirectToShoppingPage: true, user: user });
-      // Use the Navigate component to navigate
     } else {
       alert(data.error || "User Login failed!");
     }
@@ -50,7 +47,6 @@ class LoginForm extends Component {
   };
 
   renderLoginFormSection = () => {
-    console.log("0000000000000", this.state.user);
     return (
       <div>
         {this.state.redirectToShoppingPage && (

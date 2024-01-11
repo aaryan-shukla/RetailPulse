@@ -30,23 +30,26 @@ class ShoppingPage extends Component {
       quantityInCart: {},
       categoryFilter: [],
       filteredProductData: [],
-      user: "",
+      userInfoData: {},
     };
   }
   componentDidMount() {
     document.body.style.background = "none";
-    // const { navigationData } = this.props;
-    console.log("Data from navigation:", this.props);
-    this.fetchData("6593fa950574b1d36280bac4");
+    const { user } = this.props.navigationData;
+    this.setState({ userInfoData: user }, () => {
+      console.log(user);
+    });
+    const userId = user._id;
+    this.fetchData(userId);
   }
 
   componentWillUnmount() {
     document.body.style.background = null;
   }
-  async fetchData(productId) {
+  async fetchData(userId) {
     try {
       const response = await fetch(
-        "http://localhost:8080/fetchdata/6593fa950574b1d36280bac4",
+        `http://localhost:8080/fetchdata/${userId}`,
         {
           method: "GET",
         }
@@ -310,10 +313,10 @@ class ShoppingPage extends Component {
   }
 
   render() {
-    // const { from } = location.state
+    const userName = this.state.userInfoData.username;
     return (
       <div>
-        <Navbar />
+        <Navbar userName={userName} />
         <section>
           <Row>{this.renderInputSection()}</Row>
         </section>
