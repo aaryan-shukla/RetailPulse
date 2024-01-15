@@ -140,6 +140,38 @@ class ShoppingPage extends Component {
         console.error("API error:", error);
       });
     console.log("Checkout", finalArrayProduct);
+    // Inside your handleCheckOut method
+    for (const productId in finalArrayProduct.products) {
+      const productData = finalArrayProduct.products[productId];
+      const quantityToDecrease = productData.quantity;
+
+      fetch(`http://localhost:8080/updateStock/${productId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ quantityToDecrease }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(`Product quantity updated: ${productId}`, data);
+        })
+        .catch((error) => {
+          console.error(`Error updating product quantity: ${productId}`, error);
+        });
+    }
+    const userId = this.state.userInfoData._id; // Use correct property name
+    this.fetchData(userId);
+
+    // Close the modal and show an alert
+    this.setState(
+      {
+        isModalVisible: false,
+      },
+      () => {
+        alert("Bills updated");
+      }
+    );
   };
   calculateSellingPrice(item) {
     return item.price - (item.discount * item.price) / 100;
@@ -518,5 +550,3 @@ class ShoppingPage extends Component {
     );
   }
 }
-
-// export default ShoppingPage;
