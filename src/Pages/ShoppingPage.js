@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import Navbar from "../components/Navbar";
-import { Input, Row, Select, Space, Table } from "antd";
+import { Input, Row, Select, Space, Table, Modal, Button } from "antd";
 import {
   UserOutlined,
   ShoppingCartOutlined,
@@ -9,6 +9,7 @@ import {
 } from "@ant-design/icons";
 import "./Assets/shoppingpage.css";
 import { useNavigation } from "../Context/navigationProvider";
+import { viewCartTableSpecs } from "../specifications/viewCartTableSpecs";
 
 const { Option } = Select;
 const { Search } = Input;
@@ -31,6 +32,14 @@ class ShoppingPage extends Component {
       categoryFilter: [],
       filteredProductData: [],
       userInfoData: {},
+      isModalVisible: false,
+      enteredName: "",
+      enteredEmail: "",
+      enteredPhoneNo: "",
+      selectedProducts: {},
+      selectedProductsArray: [],
+      totalBill: 0,
+      checkOutArray: [],
     };
   }
   componentDidMount() {
@@ -70,8 +79,84 @@ class ShoppingPage extends Component {
       console.error("Error fetching product data:", error);
     }
   }
+  handleViewCart = () => {
+    const selectedProductsArray = Object.values(this.state.selectedProducts);
+    const totalBill = this.calculateBill(selectedProductsArray);
+    console.log("total", totalBill);
+    this.setState({
+      selectedProductsArray: selectedProductsArray,
+      isModalVisible: true,
+      totalBill: totalBill,
+    });
+  };
 
-  renderInputSection() {
+  handleModalCancel = () => {
+    this.setState({
+      isModalVisible: false,
+    });
+  };
+
+  handleAddToCart = () => {
+    console.log("Product added to cart!");
+
+    this.handleModalCancel();
+  };
+  handleCheckOut = () => {
+    const currentDate = new Date();
+    const productsCount = Object.keys(this.state.selectedProducts).length;
+    const utcTimestamp = currentDate.toISOString();
+    const formattedDate =
+      (currentDate.getMonth() + 1).toString().padStart(2, "0") +
+      "/" +
+      currentDate.getDate().toString().padStart(2, "0") +
+      "/" +
+      currentDate.getFullYear();
+    console.log(this.props.navigationData);
+    const finalArrayProduct = {
+      userName: this.state.userInfoData.username,
+      userId: this.props.navigationData.user._id,
+      customerName: this.state.enteredName,
+      contactNumber: this.state.enteredPhoneNo,
+      email: this.state.enteredEmail,
+      distinctProductCount: productsCount,
+      billAmount: this.state.totalBill,
+      products: this.state.selectedProducts,
+      date: formattedDate,
+      timestamp: utcTimestamp,
+    };
+    fetch("http://localhost:8080/updateBillDetails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(finalArrayProduct),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Checkout", finalArrayProduct);
+        console.log("API response:", data);
+      })
+      .catch((error) => {
+        console.error("API error:", error);
+      });
+    console.log("Checkout", finalArrayProduct);
+  };
+  calculateSellingPrice(item) {
+    return item.price - (item.discount * item.price) / 100;
+  }
+  calculateBill = (selectedProductsArray) => {
+    const totalBill = selectedProductsArray.reduce((total, item) => {
+      const sellingPrice = this.calculateSellingPrice(item);
+      return total + item.quantity * sellingPrice;
+    }, 0);
+    return totalBill;
+  };
+
+  updateTotalBill() {
+    const totalBill = this.calculateBill();
+    this.setState({ totalBill });
+  }
+  renderInputSection(username) {
     return (
       <div className="shoppingPageFirstSectionContainer">
         <div style={{ marginRight: "16px" }}>
@@ -81,6 +166,7 @@ class ShoppingPage extends Component {
             placeholder="Enter your name"
             prefix={<UserOutlined />}
             style={{ width: "20rem" }}
+            onChange={(e) => this.setState({ enteredName: e.target.value })}
           />
         </div>
         <div>
@@ -90,15 +176,17 @@ class ShoppingPage extends Component {
             placeholder="Enter your email"
             prefix={<UserOutlined />}
             style={{ width: "20rem" }}
+            onChange={(e) => this.setState({ enteredEmail: e.target.value })}
           />
         </div>
         <div style={{ marginLeft: "16px" }}>
           <div style={{ marginBottom: "8px" }}>Contact Number</div>
           <Input
             size="large"
-            placeholder="Enter your email"
+            placeholder="Enter your Phone NO"
             prefix={<UserOutlined />}
             style={{ width: "20rem" }}
+            onChange={(e) => this.setState({ enteredPhoneNo: e.target.value })}
           />
         </div>
         <div className="inputFile">
@@ -108,9 +196,12 @@ class ShoppingPage extends Component {
           </label>
           <input id="fileInput" type="file" style={{ display: "none" }} />
         </div>
-        <div className="shoppingCartDiv">
-          <ShoppingCartOutlined className="shoppingCart" />
+        <div className="shop">
+          <button className="shoppingCartDiv" onClick={this.handleViewCart}>
+            <ShoppingCartOutlined className="shoppingCart" />
+          </button>
         </div>
+
         <br />
       </div>
     );
@@ -237,12 +328,70 @@ class ShoppingPage extends Component {
 
       const newQuantity = currentQuantity + increment;
       const finalQuantity = Math.max(newQuantity, 0);
-      this.setState((prevState) => ({
-        quantityInCart: {
-          ...prevState.quantityInCart,
-          [productId]: finalQuantity,
-        },
-      }));
+      const selectedProductDetails = this.state.productData.find(
+        (product) => product._id === productId
+      );
+      const selectedProduct = {
+        quantity: finalQuantity,
+        discount: this.state.selectedProducts[productId]
+          ? this.state.selectedProducts[productId].discount
+          : 0,
+        name: selectedProductDetails.product_name,
+        category: selectedProductDetails.category,
+        price: selectedProductDetails.product_price,
+      };
+      if (finalQuantity === 0) {
+        const { [productId]: removedProduct, ...remainingProducts } =
+          this.state.selectedProducts;
+        this.setState({
+          quantityInCart: {
+            ...this.state.quantityInCart,
+            [productId]: finalQuantity,
+          },
+          selectedProducts: remainingProducts,
+        });
+      } else {
+        // Update the selected product in the state
+        this.setState(
+          (prevState) => ({
+            quantityInCart: {
+              ...prevState.quantityInCart,
+              [productId]: finalQuantity,
+            },
+            selectedProducts: {
+              ...prevState.selectedProducts,
+              [productId]: selectedProduct,
+            },
+          }),
+          () => {
+            // Log the updated state
+            console.log(
+              "Updated selectedProducts state:",
+              this.state.selectedProducts
+            );
+          }
+        );
+      }
+    };
+    const handleDiscountChange = (productId, selectedDiscount) => {
+      this.setState(
+        (prevState) => ({
+          selectedProducts: {
+            ...prevState.selectedProducts,
+            [productId]: {
+              ...prevState.selectedProducts[productId],
+              discount: selectedDiscount,
+            },
+          },
+        }),
+        () => {
+          // Log the updated state
+          console.log(
+            "Updated selectedProducts state:",
+            this.state.selectedProducts
+          );
+        }
+      );
     };
     const dataToDisplay = this.state.filteredProductData.length
       ? this.state.filteredProductData
@@ -262,10 +411,13 @@ class ShoppingPage extends Component {
         title: "Discount",
         dataIndex: "discount",
         key: "discount",
-        render: () => (
-          <Select className="discountOptions" defaultValue={0}>
+        render: (text, record) => (
+          <Select
+            className="discountOptions"
+            defaultValue={0}
+            onChange={(value) => handleDiscountChange(record._id, value)}>
             {discountOptions.map((discount) => (
-              <Option key={discount} value={discount}>
+              <Option key={discount._id} value={discount}>
                 {discount}% Off
               </Option>
             ))}
@@ -314,11 +466,12 @@ class ShoppingPage extends Component {
 
   render() {
     const userName = this.state.userInfoData.username;
+    const { enteredName, enteredPhoneNo } = this.state;
     return (
       <div>
         <Navbar userName={userName} />
         <section>
-          <Row>{this.renderInputSection()}</Row>
+          <Row>{this.renderInputSection(userName)}</Row>
         </section>
         <section>
           <Row>{this.renderFilterSection()}</Row>
@@ -327,6 +480,40 @@ class ShoppingPage extends Component {
         <section>
           <Row>{this.renderProductDisplaySection()}</Row>
         </section>
+        <Modal
+          title="Add to Cart"
+          visible={this.state.isModalVisible}
+          onOk={this.handleAddToCart}
+          onCancel={this.handleModalCancel}
+          footer={[
+            <Button key="checkout" onClick={this.handleCheckOut}>
+              Check Out
+            </Button>,
+            <Button key="submit" type="primary" danger>
+              Bill
+            </Button>,
+            <Button key="link" href="https://google.com" type="primary">
+              Clear
+            </Button>,
+          ]}>
+          <span>
+            <p>
+              <b> Customer Name: </b>
+              {enteredName} <b>Customer Phone: </b>
+              {enteredPhoneNo}
+            </p>
+          </span>
+          <Table
+            dataSource={this.state.selectedProductsArray.map((item) => ({
+              ...item,
+              sellingPrice: this.calculateSellingPrice(item),
+            }))}
+            columns={viewCartTableSpecs}
+          />
+          <div>
+            <span>Total Bill :{this.state.totalBill}</span>
+          </div>
+        </Modal>
       </div>
     );
   }
