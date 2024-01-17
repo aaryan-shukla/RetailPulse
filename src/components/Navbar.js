@@ -14,6 +14,7 @@ export default class Navbar extends Component {
     const { tabs } = this.state;
     const currentPath = window.location.pathname;
     const { userName } = this.props;
+    console.log("navigation data", this.props);
     return (
       <header>
         <nav className="navStyle">

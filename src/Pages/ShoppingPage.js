@@ -10,6 +10,7 @@ import {
 import "./Assets/shoppingpage.css";
 import { useNavigation } from "../Context/navigationProvider";
 import { viewCartTableSpecs } from "../specifications/viewCartTableSpecs";
+import { Link } from "react-router-dom";
 
 const { Option } = Select;
 const { Search } = Input;
@@ -173,6 +174,31 @@ class ShoppingPage extends Component {
       }
     );
   };
+  handleClear = () => {
+    // Reset the name in the input field
+    this.setState({
+      enteredName: "",
+      enteredEmail: "",
+      enteredPhoneNo: "",
+    });
+
+    const clearedProducts = {};
+    for (const productId in this.state.selectedProducts) {
+      clearedProducts[productId] = {
+        ...this.state.selectedProducts[productId],
+        quantity: 0,
+      };
+    }
+
+    this.setState({
+      selectedProducts: {},
+      quantityInCart: {},
+    });
+
+    // Close the modal
+    this.handleModalCancel();
+  };
+
   calculateSellingPrice(item) {
     return item.price - (item.discount * item.price) / 100;
   }
@@ -501,7 +527,10 @@ class ShoppingPage extends Component {
     const { enteredName, enteredPhoneNo } = this.state;
     return (
       <div>
-        <Navbar userName={userName} />
+        <Navbar
+          userName={userName}
+          navigationData={this.props.navigationData}
+        />
         <section>
           <Row>{this.renderInputSection(userName)}</Row>
         </section>
@@ -524,7 +553,7 @@ class ShoppingPage extends Component {
             <Button key="submit" type="primary" danger>
               Bill
             </Button>,
-            <Button key="link" href="https://google.com" type="primary">
+            <Button key="clear" type="primary" onClick={this.handleClear}>
               Clear
             </Button>,
           ]}>
@@ -546,6 +575,9 @@ class ShoppingPage extends Component {
             <span>Total Bill :{this.state.totalBill}</span>
           </div>
         </Modal>
+        <Link to={{ pathname: "/analysis", state: { username: userName } }}>
+          <button>Go to Analysis Page</button>
+        </Link>
       </div>
     );
   }
