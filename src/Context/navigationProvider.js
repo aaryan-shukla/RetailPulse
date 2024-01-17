@@ -1,13 +1,22 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 const NavigationContext = createContext();
 
 export const NavigationProvider = ({ children }) => {
-  const [navigationData, setNavigationData] = useState(null);
+  const [navigationData, setNavigationData] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? { user: JSON.parse(storedUser) } : null;
+  });
 
   const setNavigation = (data) => {
     setNavigationData(data);
   };
+
+  useEffect(() => {
+    if (navigationData && navigationData.user) {
+      localStorage.setItem("user", JSON.stringify(navigationData.user));
+    }
+  }, [navigationData]);
 
   return (
     <NavigationContext.Provider value={{ navigationData, setNavigation }}>

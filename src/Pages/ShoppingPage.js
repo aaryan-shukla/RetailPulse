@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import { Input, Row, Select, Space, Table, Modal, Button } from "antd";
 import {
@@ -17,6 +17,9 @@ const { Search } = Input;
 
 const ShoppingPageWithNavigation = () => {
   const { navigationData } = useNavigation();
+  useEffect(() => {
+    localStorage.setItem("user", JSON.stringify(navigationData.user));
+  }, [navigationData.user]);
 
   return <ShoppingPage navigationData={navigationData} />;
 };
@@ -32,7 +35,7 @@ class ShoppingPage extends Component {
       quantityInCart: {},
       categoryFilter: [],
       filteredProductData: [],
-      userInfoData: {},
+      userInfoData: JSON.parse(localStorage.getItem("user")) || {},
       isModalVisible: false,
       enteredName: "",
       enteredEmail: "",
@@ -45,11 +48,8 @@ class ShoppingPage extends Component {
   }
   componentDidMount() {
     document.body.style.background = "none";
-    const { user } = this.props.navigationData;
-    this.setState({ userInfoData: user }, () => {
-      console.log(user);
-    });
-    const userId = user._id;
+    console.log("userinfodata", this.state.userInfoData);
+    const userId = this.state.userInfoData._id;
     this.fetchData(userId);
   }
 
@@ -115,7 +115,7 @@ class ShoppingPage extends Component {
     console.log(this.props.navigationData);
     const finalArrayProduct = {
       userName: this.state.userInfoData.username,
-      userId: this.props.navigationData.user._id,
+      userId: this.state.userInfoData._id,
       customerName: this.state.enteredName,
       contactNumber: this.state.enteredPhoneNo,
       email: this.state.enteredEmail,

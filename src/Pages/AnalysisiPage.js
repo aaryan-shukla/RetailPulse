@@ -9,6 +9,7 @@ export default AnalysisPageWithNavigation;
 class AnalysisiPage extends Component {
   constructor(props) {
     super(props);
+    console.log("constructor of analysis page");
   }
 
   render() {

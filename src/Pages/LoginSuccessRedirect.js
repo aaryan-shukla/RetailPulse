@@ -7,9 +7,10 @@ const LoginSuccessRedirect = ({ user }) => {
 
   useEffect(() => {
     setNavigation({ user });
+    localStorage.setItem("user", JSON.stringify(user));
   }, [setNavigation, user]);
 
-  return <Navigate to="/retail" state={{ user }} />;
+  return user ? <Navigate to="/retail" state={{ user }} /> : null;
 };
 
 export default LoginSuccessRedirect;
