@@ -10,7 +10,6 @@ import {
 import "./Assets/shoppingpage.css";
 import { useNavigation } from "../Context/navigationProvider";
 import { viewCartTableSpecs } from "../specifications/viewCartTableSpecs";
-import { Link } from "react-router-dom";
 
 const { Option } = Select;
 const { Search } = Input;
@@ -575,9 +574,6 @@ class ShoppingPage extends Component {
             <span>Total Bill :{this.state.totalBill}</span>
           </div>
         </Modal>
-        <Link to={{ pathname: "/analysis", state: { username: userName } }}>
-          <button>Go to Analysis Page</button>
-        </Link>
       </div>
     );
   }

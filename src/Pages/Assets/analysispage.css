@@ -1,0 +1,32 @@
+.analysisHeading {
+  color: #22a7f0;
+  margin-left: 0.7rem;
+  font-size: 1.3rem;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-weight: bolder;
+  /* font-style: italic; */
+}
+.headerDiv {
+  width: 100%;
+  height: 50px;
+  margin-top: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+  border-bottom: 1px solid #22a7f0;
+  border-radius: 10px;
+  perspective: 1000px;
+}
+.chartsCard {
+  background-color: #f2f2f0; /* Some color related to white */
+  transition: box-shadow 0.3s, transform 0.3s;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  margin-right: 1rem;
+  margin-left: 1rem;
+}
+
+.chartsCard:hover {
+  transform: scale(1.02);
+  box-shadow: 0 20px 10px rgba(0, 0, 0, 0.1);
+  margin-right: 1rem;
+  margin-left: 1rem;
+}
